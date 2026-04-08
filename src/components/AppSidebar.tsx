@@ -8,36 +8,25 @@ const navItems = [
   { to: "/map", icon: Map, label: "Map View" },
   { to: "/upload", icon: Upload, label: "Upload Data" },
   { to: "/predictions", icon: Activity, label: "Predictions" },
-  { to: "/admin", icon: Shield, label: "Admin Panel" },
+  { to: "/admin", icon: Shield, label: "Admin" },
 ];
 
 export default function AppSidebar() {
   const location = useLocation();
 
   return (
-    <aside className="w-60 min-h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
-      <div className="p-5 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-            <Activity className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="font-display text-sm font-bold text-foreground tracking-tight">Accident</h1>
-            <p className="text-[11px] text-muted-foreground font-medium">Insight Engine</p>
-          </div>
-        </div>
+    <aside className="w-56 min-h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
+      <div className="px-6 py-7 border-b border-sidebar-border">
+        <h1 className="font-display text-lg font-bold text-foreground leading-tight">Accident<br/>Insight Engine</h1>
       </div>
 
-      <nav className="flex-1 p-3 space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-0.5">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
             <NavLink key={item.to} to={item.to}>
-              <motion.div
-                className={`sidebar-nav-item ${isActive ? "active" : ""}`}
-                whileTap={{ scale: 0.98 }}
-              >
-                <item.icon className="w-4 h-4" />
+              <motion.div className={`sidebar-nav-item ${isActive ? "active" : ""}`} whileTap={{ scale: 0.97 }}>
+                <item.icon className="w-[18px] h-[18px]" />
                 <span>{item.label}</span>
               </motion.div>
             </NavLink>
@@ -45,10 +34,10 @@ export default function AppSidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-2 px-3">
+      <div className="px-6 py-5 border-t border-sidebar-border">
+        <div className="flex items-center gap-2">
           <div className="pulse-dot" />
-          <span className="text-xs text-muted-foreground">System operational</span>
+          <span className="text-xs text-muted-foreground">All systems online</span>
         </div>
       </div>
     </aside>
