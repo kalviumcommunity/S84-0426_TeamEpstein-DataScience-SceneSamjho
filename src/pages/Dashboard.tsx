@@ -21,30 +21,32 @@ export default function Dashboard() {
   const weatherImpact = Math.round(data.filter(d => d.weather !== 'Clear').length / data.length * 100);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <motion.h2 className="font-display text-xl font-bold text-foreground" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          Dashboard
-        </motion.h2>
-        <p className="text-sm text-muted-foreground mt-0.5">Accident analytics overview</p>
-      </div>
+    <div className="space-y-7">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <h2 className="font-display text-2xl font-bold text-foreground">Dashboard</h2>
+        <p className="text-sm text-muted-foreground mt-1 font-light">Real-time accident analytics and prevention insights</p>
+      </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard title="Total Accidents" value={totalAccidents} icon={BarChart3} trend={{ value: 12, positive: true }} delay={0} />
-        <StatCard title="High-Risk Zones" value={highRiskZones} icon={AlertTriangle} subtitle="Active danger areas" delay={0.05} color="var(--rose)" />
-        <StatCard title="Peak Hour" value={`${peakHour[0].padStart(2, '0')}:00`} icon={Clock} subtitle={`${peakHour[1]} incidents`} delay={0.1} color="var(--orange)" />
-        <StatCard title="Weather Impact" value={`${weatherImpact}%`} icon={CloudRain} subtitle="Non-clear conditions" delay={0.15} color="var(--sky)" />
+        <StatCard title="High-Risk Zones" value={highRiskZones} icon={AlertTriangle} subtitle="Active danger areas" delay={0.06} color="var(--wine)" />
+        <StatCard title="Peak Hour" value={`${peakHour[0].padStart(2, '0')}:00`} icon={Clock} subtitle={`${peakHour[1]} incidents`} delay={0.12} color="var(--copper)" />
+        <StatCard title="Weather Impact" value={`${weatherImpact}%`} icon={CloudRain} subtitle="Non-clear conditions" delay={0.18} color="var(--navy)" />
       </div>
+
+      <div className="divider" />
 
       <DashboardCharts data={data} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="divider" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-          <h3 className="font-display text-sm font-semibold text-foreground mb-3">Insights</h3>
+          <h3 className="font-display text-lg font-semibold text-foreground mb-4">Insights</h3>
           <InsightCards insights={insights} />
         </div>
         <div>
-          <h3 className="font-display text-sm font-semibold text-foreground mb-3">Recommendations</h3>
+          <h3 className="font-display text-lg font-semibold text-foreground mb-4">Recommendations</h3>
           <RecommendationCards recommendations={recommendations} />
         </div>
       </div>

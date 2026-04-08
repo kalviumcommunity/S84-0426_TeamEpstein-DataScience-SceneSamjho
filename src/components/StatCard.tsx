@@ -15,26 +15,27 @@ export default function StatCard({ title, value, subtitle, icon: Icon, trend, de
   return (
     <motion.div
       className="stat-card"
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
+      transition={{ duration: 0.5, delay }}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
-          <p className="text-2xl font-display font-bold mt-1.5 text-foreground">{value}</p>
-          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+          <p className="text-[11px] font-body font-semibold text-muted-foreground uppercase tracking-widest">{title}</p>
+          <p className="text-3xl font-display font-bold mt-2 text-foreground">{value}</p>
+          {subtitle && <p className="text-xs text-muted-foreground mt-1 font-light">{subtitle}</p>}
           {trend && (
-            <p className={`text-xs mt-2 font-medium ${trend.positive ? 'text-emerald' : 'text-rose'}`}>
-              {trend.positive ? '↓' : '↑'} {Math.abs(trend.value)}% vs last month
+            <p className={`text-xs mt-2.5 font-medium ${trend.positive ? 'text-sage' : 'text-wine'}`}>
+              {trend.positive ? '↓' : '↑'} {Math.abs(trend.value)}%
+              <span className="text-muted-foreground font-normal ml-1">vs prior period</span>
             </p>
           )}
         </div>
         <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: `hsl(${color} / 0.1)` }}
+          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: `hsl(${color} / 0.08)` }}
         >
-          <Icon className="w-4 h-4" style={{ color: `hsl(${color})` }} />
+          <Icon className="w-[18px] h-[18px]" style={{ color: `hsl(${color})` }} />
         </div>
       </div>
     </motion.div>
