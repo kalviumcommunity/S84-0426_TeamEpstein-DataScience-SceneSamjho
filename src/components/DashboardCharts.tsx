@@ -3,18 +3,45 @@ import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { AccidentRecord, getTimeDistribution, getWeatherDistribution, getRoadTypeDistribution } from "@/data/sampleData";
+import { AccidentRecord } from "@/data/types";
 
 const COLORS = ["#2a9d8f", "#e76f51", "#264653", "#e9c46a", "#8a5cf5"];
 
 const tooltipStyle = {
-  backgroundColor: "#fdfcfa",
-  border: "1px solid #e8e4de",
+  backgroundColor: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.1)",
   borderRadius: "8px",
-  color: "#2c2e3a",
+  color: "#333",
   fontSize: "12px",
-  fontFamily: "'Source Sans 3', sans-serif",
   boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+};
+
+const getTimeDistribution = (records: AccidentRecord[]) => {
+  const acc: Record<string, number> = {};
+  records.forEach(r => {
+    // API returning 'Morning', 'Afternoon' etc.
+    const t = r.time || "Unknown";
+    acc[t] = (acc[t] || 0) + 1;
+  });
+  return Object.entries(acc).map(([key, val]) => ({ name: key, count: val }));
+};
+
+const getWeatherDistribution = (records: AccidentRecord[]) => {
+  const acc: Record<string, number> = {};
+  records.forEach(r => {
+    const w = r.weather || "Clear";
+    acc[w] = (acc[w] || 0) + 1;
+  });
+  return Object.entries(acc).map(([key, val]) => ({ name: key, count: val }));
+};
+
+const getRoadTypeDistribution = (records: AccidentRecord[]) => {
+  const acc: Record<string, number> = {};
+  records.forEach(r => {
+    const road = r.road_type || r.roadType || "Highway";
+    acc[road] = (acc[road] || 0) + 1;
+  });
+  return Object.entries(acc).map(([key, val]) => ({ name: key, count: val })).sort((a,b) => b.count - a.count);
 };
 
 export default function DashboardCharts({ data }: { data: AccidentRecord[] }) {

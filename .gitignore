@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+accident-ai-backend/venv/
+accident-ai-backend/__pycache__/
+*.csv

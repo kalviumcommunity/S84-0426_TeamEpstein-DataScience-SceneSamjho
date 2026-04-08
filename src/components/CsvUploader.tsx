@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Papa from "papaparse";
-import { AccidentRecord } from "@/data/sampleData";
+import { AccidentRecord } from "@/data/types";
 
 interface CsvUploaderProps {
   onDataLoaded: (data: AccidentRecord[]) => void;
@@ -25,31 +25,26 @@ export default function CsvUploader({ onDataLoaded }: CsvUploaderProps) {
         try {
           const records: AccidentRecord[] = results.data.map((row: any, i: number) => ({
             id: row.id || `R${i + 1}`,
-            date: row.date || "",
-            time: row.time || "",
-            hour: parseInt(row.hour || row.time?.split(":")[0] || "0"),
-            latitude: parseFloat(row.latitude || row.lat || "0"),
-            longitude: parseFloat(row.longitude || row.lng || row.lon || "0"),
-            weather: row.weather || "Unknown",
-            roadType: row.roadType || row.road_type || "Unknown",
-            severity: row.severity || "Minor",
-            casualties: parseInt(row.casualties || "0"),
-            vehicles: parseInt(row.vehicles || "1"),
-            zone: row.zone || "Unknown",
-            lightCondition: row.lightCondition || row.light_condition || "Unknown",
+            time: row.time || row.Time || "",
+            latitude: parseFloat(row.latitude || row.Lat || "0"),
+            longitude: parseFloat(row.longitude || row.Lon || "0"),
+            weather: row.weather || row.Weather || "Clear",
+            road_type: row.road_type || row.roadType || row.RoadType || "City Street",
+            severity: row.severity || row.Severity || "Minor",
           }));
+          
           setRowCount(records.length);
           setStatus('success');
           onDataLoaded(records);
-        } catch (e) {
-          setErrorMsg("Failed to parse CSV data.");
+        } catch (e: any) {
           setStatus('error');
+          setErrorMsg("Failed to map CSV columns to Accident schema");
         }
       },
-      error: () => {
-        setErrorMsg("Error reading file.");
+      error: (e) => {
         setStatus('error');
-      },
+        setErrorMsg(e.message);
+      }
     });
   }, [onDataLoaded]);
 

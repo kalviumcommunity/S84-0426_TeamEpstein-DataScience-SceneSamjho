@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import CsvUploader from "@/components/CsvUploader";
-import { AccidentRecord, sampleAccidents } from "@/data/sampleData";
 
 export default function UploadPage() {
-  const [data, setData] = useState<AccidentRecord[]>([]);
+  const [data, setData] = useState<any[]>([]);
 
   return (
     <div className="space-y-8">
@@ -12,7 +11,7 @@ export default function UploadPage() {
         <motion.h2 className="font-display text-2xl font-bold gradient-text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           Upload Dataset
         </motion.h2>
-        <p className="text-sm text-muted-foreground mt-1">Import accident CSV data for analysis</p>
+        <p className="text-sm text-muted-foreground mt-1">Import accident CSV data for live ML backend analysis</p>
       </div>
 
       <CsvUploader onDataLoaded={setData} />
@@ -20,37 +19,35 @@ export default function UploadPage() {
       {data.length > 0 && (
         <motion.div className="glass-card p-4 overflow-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <h3 className="font-display text-sm font-semibold text-foreground mb-3">Preview ({data.length} records)</h3>
-          <table className="w-full text-xs">
+          <table className="w-full text-xs text-left">
             <thead>
               <tr className="border-b border-border text-muted-foreground">
-                <th className="py-2 px-3 text-left">ID</th>
-                <th className="py-2 px-3 text-left">Date</th>
-                <th className="py-2 px-3 text-left">Time</th>
-                <th className="py-2 px-3 text-left">Weather</th>
-                <th className="py-2 px-3 text-left">Road</th>
-                <th className="py-2 px-3 text-left">Severity</th>
-                <th className="py-2 px-3 text-left">Casualties</th>
+                <th className="py-2 px-3">Time</th>
+                <th className="py-2 px-3">Weather</th>
+                <th className="py-2 px-3">Road Type</th>
+                <th className="py-2 px-3">Severity</th>
+                <th className="py-2 px-3">Lat</th>
+                <th className="py-2 px-3">Lon</th>
               </tr>
             </thead>
             <tbody>
-              {data.slice(0, 20).map((row) => (
-                <tr key={row.id} className="border-b border-border/50 hover:bg-secondary/50 transition-colors">
-                  <td className="py-2 px-3 font-display text-primary">{row.id}</td>
-                  <td className="py-2 px-3">{row.date}</td>
-                  <td className="py-2 px-3">{row.time}</td>
-                  <td className="py-2 px-3">{row.weather}</td>
-                  <td className="py-2 px-3">{row.roadType}</td>
+              {data.slice(0, 20).map((row, idx) => (
+                <tr key={row.id || idx} className="border-b border-border/50 hover:bg-secondary/50 transition-colors">
+                  <td className="py-2 px-3">{row.time || "N/A"}</td>
+                  <td className="py-2 px-3">{row.weather || "N/A"}</td>
+                  <td className="py-2 px-3">{row.road_type || row.roadType || "N/A"}</td>
                   <td className="py-2 px-3">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                      row.severity === 'Fatal' ? 'bg-neon-red/10 text-neon-red' :
-                      row.severity === 'Severe' ? 'bg-neon-amber/10 text-neon-amber' :
-                      row.severity === 'Moderate' ? 'bg-neon-blue/10 text-neon-blue' :
-                      'bg-neon-green/10 text-neon-green'
+                      row.severity === 'Fatal' ? 'bg-destructive/20 text-destructive' :
+                      row.severity === 'Severe' ? 'bg-[#ff9f43]/20 text-[#ff9f43]' :
+                      row.severity === 'Moderate' ? 'bg-primary/20 text-primary' :
+                      'bg-teal/20 text-teal'
                     }`}>
-                      {row.severity}
+                      {row.severity || "N/A"}
                     </span>
                   </td>
-                  <td className="py-2 px-3">{row.casualties}</td>
+                  <td className="py-2 px-3 font-mono">{row.latitude?.toFixed(4) || "N/A"}</td>
+                  <td className="py-2 px-3 font-mono">{row.longitude?.toFixed(4) || "N/A"}</td>
                 </tr>
               ))}
             </tbody>
