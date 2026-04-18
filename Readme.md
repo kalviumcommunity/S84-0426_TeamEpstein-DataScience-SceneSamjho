@@ -51,3 +51,37 @@ We utilize the standard Data Science "Starter Pack" to perform this analysis:
         Pandas & NumPy: For data wrangling, cleaning, and handling the "messy" real-world logs.
 
         Matplotlib & Seaborn: For statistical visualization to reveal hidden correlations between environment and accident frequency.
+        🛠️ Milestone 1: Development Environment Setup
+
+This section documents the local environment configuration required for the Traffic Accident Correlation Analysis project.
+💻 System Specifications
+
+    Operating System: Arch Linux (x86_64)
+
+    Package Manager: Miniconda3 (conda 26.1.1)
+
+    Shell: Zsh
+
+⚙️ Installation & Setup Steps
+
+    Miniconda Installation: Downloaded the Miniconda3 Linux 64-bit installer and initialized the shell integration for zsh.
+
+    Environment Creation: Created a isolated environment to ensure dependency stability:
+    Bash
+
+conda create -n team02_sprint3 python=3.11
+
+Tooling: Installed Jupyter Notebook within the environment for interactive data analysis:
+Bash
+
+    conda install jupyter
+
+✅ Verification & Validation
+
+The environment has been verified through the following terminal outputs:
+
+    Python Version: 3.11.15 (Verified inside team02_sprint3)
+
+    Conda Version: 26.1.1
+
+    Jupyter Functional Test: Successfully launched the Jupyter server and executed a Python 3 kernel test.
