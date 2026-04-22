@@ -28,6 +28,35 @@
   max-width: 780px;
 }
 
+.analytics-page__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.analytics-refresh-btn {
+  border: 1px solid #1d4ed8;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.analytics-refresh-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.analytics-last-updated {
+  color: var(--analytics-text);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
 .analytics-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));

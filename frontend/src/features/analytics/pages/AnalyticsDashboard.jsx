@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "../styles/analytics.css";
 import { AnalyticsSection } from "../components/AnalyticsSection";
 import { KpiCards } from "../components/KpiCards";
@@ -13,45 +13,67 @@ export function AnalyticsDashboard() {
   const [trendData, setTrendData] = useState([]);
   const [contextData, setContextData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
   const [error, setError] = useState("");
+  const isMountedRef = useRef(true);
 
-  useEffect(() => {
-    let isActive = true;
-
-    async function loadAnalytics() {
-      try {
-        if (isActive) {
-          setError("");
-        }
-
-        const snapshot = await fetchAnalyticsSnapshot();
-
-        if (!isActive) {
-          return;
-        }
-
-        setKpis(snapshot.kpis);
-        setTrendData(snapshot.trendData);
-        setContextData(snapshot.contextData);
-      } catch (requestError) {
-        if (isActive) {
-          setError("Analytics API unavailable. Showing fallback where possible.");
-        }
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
+  const loadAnalytics = useCallback(async ({ showLoader = false } = {}) => {
+    if (showLoader && isMountedRef.current) {
+      setIsLoading(true);
     }
 
-    loadAnalytics();
+    if (isMountedRef.current) {
+      setError("");
+    }
+
+    try {
+      const snapshot = await fetchAnalyticsSnapshot();
+
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      setKpis(snapshot.kpis);
+      setTrendData(snapshot.trendData);
+      setContextData(snapshot.contextData);
+      setLastUpdatedAt(new Date());
+    } catch (requestError) {
+      if (isMountedRef.current) {
+        setError("Analytics API unavailable. Showing fallback where possible.");
+      }
+    } finally {
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      if (showLoader) {
+        setIsLoading(false);
+      }
+
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    loadAnalytics({ showLoader: true });
     const intervalId = setInterval(loadAnalytics, POLLING_INTERVAL_MS);
 
     return () => {
-      isActive = false;
+      isMountedRef.current = false;
       clearInterval(intervalId);
     };
-  }, []);
+  }, [loadAnalytics]);
+
+  function handleManualRefresh() {
+    if (isRefreshing || isLoading) {
+      return;
+    }
+
+    setIsRefreshing(true);
+    loadAnalytics();
+  }
 
   return (
     <main className="analytics-page" aria-label="Analytics dashboard">
@@ -61,6 +83,21 @@ export function AnalyticsDashboard() {
           Business intelligence overview for accidents, risk signals, and
           localized road-context trends.
         </p>
+        <div className="analytics-page__header-actions">
+          <button
+            type="button"
+            className="analytics-refresh-btn"
+            onClick={handleManualRefresh}
+            disabled={isLoading || isRefreshing}
+          >
+            {isRefreshing ? "Refreshing..." : "Refresh now"}
+          </button>
+          <span className="analytics-last-updated">
+            {lastUpdatedAt
+              ? `Last updated: ${lastUpdatedAt.toLocaleTimeString()}`
+              : "Waiting for first data sync..."}
+          </span>
+        </div>
       </header>
 
       <section className="analytics-grid" aria-label="Analytics visualization grid">
