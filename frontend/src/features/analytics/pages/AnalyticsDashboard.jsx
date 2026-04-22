@@ -6,7 +6,25 @@ import { TimeSeriesTrendChart } from "../components/TimeSeriesTrendChart";
 import { IndianContextCharts } from "../components/IndianContextCharts";
 import { fetchAnalyticsSnapshot } from "../services/analyticsApi";
 
-const POLLING_INTERVAL_MS = 60000;
+const DEFAULT_POLLING_INTERVAL_MS = 60000;
+const MIN_POLLING_INTERVAL_MS = 10000;
+
+function resolvePollingIntervalMs() {
+  const configured = Number(import.meta.env.VITE_ANALYTICS_POLLING_MS);
+
+  if (!Number.isFinite(configured)) {
+    return DEFAULT_POLLING_INTERVAL_MS;
+  }
+
+  if (configured <= 0) {
+    return 0;
+  }
+
+  return Math.max(MIN_POLLING_INTERVAL_MS, Math.floor(configured));
+}
+
+const POLLING_INTERVAL_MS = resolvePollingIntervalMs();
+const AUTO_REFRESH_ENABLED = POLLING_INTERVAL_MS > 0;
 
 export function AnalyticsDashboard() {
   const [kpis, setKpis] = useState({});
@@ -16,7 +34,7 @@ export function AnalyticsDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
   const [nextRefreshInSeconds, setNextRefreshInSeconds] = useState(
-    Math.floor(POLLING_INTERVAL_MS / 1000)
+    AUTO_REFRESH_ENABLED ? Math.floor(POLLING_INTERVAL_MS / 1000) : 0
   );
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
@@ -51,7 +69,10 @@ export function AnalyticsDashboard() {
       setContextData(snapshot.contextData);
       setWarning(snapshot.warning || "");
       setLastUpdatedAt(new Date());
-      setNextRefreshInSeconds(Math.floor(POLLING_INTERVAL_MS / 1000));
+
+      if (AUTO_REFRESH_ENABLED) {
+        setNextRefreshInSeconds(Math.floor(POLLING_INTERVAL_MS / 1000));
+      }
     } catch (requestError) {
       if (isMountedRef.current) {
         setError("Analytics API unavailable. Showing fallback where possible.");
@@ -73,15 +94,26 @@ export function AnalyticsDashboard() {
   useEffect(() => {
     isMountedRef.current = true;
     loadAnalytics({ showLoader: true });
-    const intervalId = setInterval(loadAnalytics, POLLING_INTERVAL_MS);
-    const tickerId = setInterval(() => {
-      setNextRefreshInSeconds((current) => Math.max(0, current - 1));
-    }, 1000);
+
+    const intervalId = AUTO_REFRESH_ENABLED
+      ? setInterval(loadAnalytics, POLLING_INTERVAL_MS)
+      : null;
+    const tickerId = AUTO_REFRESH_ENABLED
+      ? setInterval(() => {
+          setNextRefreshInSeconds((current) => Math.max(0, current - 1));
+        }, 1000)
+      : null;
 
     return () => {
       isMountedRef.current = false;
-      clearInterval(intervalId);
-      clearInterval(tickerId);
+
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+
+      if (tickerId) {
+        clearInterval(tickerId);
+      }
     };
   }, [loadAnalytics]);
 
@@ -124,8 +156,16 @@ export function AnalyticsDashboard() {
               ? `Last updated: ${lastUpdatedAt.toLocaleTimeString()}`
               : "Waiting for first data sync..."}
           </span>
-          <span className="analytics-next-refresh">
-            Next auto-refresh in {formatCountdown(nextRefreshInSeconds)}
+          <span
+            className={
+              AUTO_REFRESH_ENABLED
+                ? "analytics-next-refresh"
+                : "analytics-next-refresh analytics-next-refresh--disabled"
+            }
+          >
+            {AUTO_REFRESH_ENABLED
+              ? `Next auto-refresh in ${formatCountdown(nextRefreshInSeconds)}`
+              : "Auto-refresh is disabled (manual refresh only)"}
           </span>
         </div>
         {warning ? (
