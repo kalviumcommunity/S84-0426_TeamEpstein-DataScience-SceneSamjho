@@ -1,8 +1,8 @@
 import "../styles/analytics.css";
 import { AnalyticsSection } from "../components/AnalyticsSection";
-import { PlaceholderPanel } from "../components/PlaceholderPanel";
 import { KpiCards } from "../components/KpiCards";
 import { TimeSeriesTrendChart } from "../components/TimeSeriesTrendChart";
+import { IndianContextCharts } from "../components/IndianContextCharts";
 
 const KPI_SAMPLE_DATA = {
   total_accidents: 1384,
@@ -17,6 +17,17 @@ const TREND_SAMPLE_DATA = [
   { timeBucket: "Evening (4PM-8PM)", Minor: 55, Major: 34, Fatal: 14, total: 103 },
   { timeBucket: "Night (8PM-6AM)", Minor: 48, Major: 38, Fatal: 16, total: 102 },
 ];
+
+const INDIAN_CONTEXT_SAMPLE_DATA = {
+  stray_animals_accidents: 117,
+  wrong_way_accidents: 92,
+  pothole_related: 148,
+  severity_distribution_wrong_way: {
+    Minor: 39,
+    Major: 33,
+    Fatal: 20,
+  },
+};
 
 export function AnalyticsDashboard() {
   return (
@@ -51,10 +62,7 @@ export function AnalyticsDashboard() {
           title="Indian Context Correlations"
           description="Pie and bar charts for wrong-way, potholes, and severity context"
         >
-          <div className="analytics-grid__split">
-            <PlaceholderPanel label="Pie Chart Placeholder" minHeight={280} />
-            <PlaceholderPanel label="Bar Chart Placeholder" minHeight={280} />
-          </div>
+          <IndianContextCharts data={INDIAN_CONTEXT_SAMPLE_DATA} />
         </AnalyticsSection>
       </section>
     </main>
