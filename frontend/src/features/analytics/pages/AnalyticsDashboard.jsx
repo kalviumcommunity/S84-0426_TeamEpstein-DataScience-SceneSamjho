@@ -4,8 +4,8 @@ import { AnalyticsSection } from "../components/AnalyticsSection";
 import { TimeSeriesTrendChart } from "../components/TimeSeriesTrendChart";
 import { KpiCards } from "../components/KpiCards";
 import { IndianContextCharts } from "../components/IndianContextCharts";
+import { fetchAnalyticsSnapshot } from "../services/analyticsApi";
 
-const API_BASE_URL = "http://localhost:8000/api/v1";
 const POLLING_MS = 60000;
 
 export function AnalyticsDashboard() {
@@ -24,29 +24,15 @@ export function AnalyticsDashboard() {
           setError("");
         }
 
-        const [kpisRes, trendsRes, contextRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/analytics/kpis/`),
-          fetch(`${API_BASE_URL}/analytics/trends/`),
-          fetch(`${API_BASE_URL}/analytics/indian-context/`),
-        ]);
-
-        if (!kpisRes.ok || !trendsRes.ok || !contextRes.ok) {
-          throw new Error("Failed to fetch analytics endpoints");
-        }
-
-        const [kpisPayload, trendsPayload, contextPayload] = await Promise.all([
-          kpisRes.json(),
-          trendsRes.json(),
-          contextRes.json(),
-        ]);
+        const snapshot = await fetchAnalyticsSnapshot();
 
         if (!isActive) {
           return;
         }
 
-        setKpis(kpisPayload || {});
-        setTrendData(Array.isArray(trendsPayload) ? trendsPayload : []);
-        setContextData(contextPayload || {});
+        setKpis(snapshot.kpis);
+        setTrendData(snapshot.trendData);
+        setContextData(snapshot.contextData);
       } catch (err) {
         if (isActive) {
           setError("Analytics API unavailable. Showing fallback trend data.");
