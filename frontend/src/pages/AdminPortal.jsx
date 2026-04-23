@@ -36,7 +36,12 @@ const AdminPortal = () => {
       newErrors.location = 'Location must be at least 5 characters long';
     }
 
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters long';
+    }
+
     return newErrors;
   };
 
