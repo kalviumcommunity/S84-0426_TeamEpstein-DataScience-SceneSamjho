@@ -50,17 +50,18 @@ const AdminPortal = () => {
     }
 
     setIsSubmitting(true);
+    const loadingToastId = toast.loading('Submitting accident report...');
 
     try {
       // Connect to Avinash's endpoint
       await axios.post('/api/v1/accidents', formData);
       
-      toast.success('Accident report successfully submitted!');
+      toast.success('Accident report successfully submitted!', { id: loadingToastId });
       setFormData(initialFormState); // Reset form
     } catch (error) {
       console.error('Submission error:', error);
       const errorMsg = error.response?.data?.message || 'Failed to submit report. Please try again.';
-      toast.error(errorMsg);
+      toast.error(errorMsg, { id: loadingToastId });
     } finally {
       setIsSubmitting(false);
     }
