@@ -64,6 +64,7 @@ const AdminPortal = () => {
     
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
