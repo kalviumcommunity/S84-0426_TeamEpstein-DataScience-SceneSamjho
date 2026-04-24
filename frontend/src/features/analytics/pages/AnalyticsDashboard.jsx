@@ -50,6 +50,11 @@ export function AnalyticsDashboard() {
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
   const isMountedRef = useRef(true);
+  const latestSnapshotRef = useRef({
+    kpis: {},
+    trendData: [],
+    contextData: {},
+  });
 
   function formatCountdown(seconds) {
     const safeSeconds = Math.max(0, Number(seconds) || 0);
@@ -69,7 +74,7 @@ export function AnalyticsDashboard() {
     }
 
     try {
-      const snapshot = await fetchAnalyticsSnapshot();
+      const snapshot = await fetchAnalyticsSnapshot(latestSnapshotRef.current);
 
       if (!isMountedRef.current) {
         return;
@@ -80,6 +85,11 @@ export function AnalyticsDashboard() {
       setContextData(snapshot.contextData);
       setWarning(snapshot.warning || "");
       setLastUpdatedAt(new Date());
+      latestSnapshotRef.current = {
+        kpis: snapshot.kpis,
+        trendData: snapshot.trendData,
+        contextData: snapshot.contextData,
+      };
 
       if (AUTO_REFRESH_ENABLED) {
         setNextRefreshInSeconds(Math.floor(POLLING_INTERVAL_MS / 1000));

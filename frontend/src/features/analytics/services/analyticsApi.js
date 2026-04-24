@@ -1,5 +1,30 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 const DEFAULT_ANALYTICS_REQUEST_TIMEOUT_MS = 12000;
+const EMPTY_ANALYTICS_SNAPSHOT = {
+  kpis: {},
+  trendData: [],
+  contextData: {},
+};
+
+function resolvePreviousSnapshot(previousSnapshot) {
+  if (!previousSnapshot || typeof previousSnapshot !== "object") {
+    return EMPTY_ANALYTICS_SNAPSHOT;
+  }
+
+  return {
+    kpis:
+      previousSnapshot.kpis && typeof previousSnapshot.kpis === "object"
+        ? previousSnapshot.kpis
+        : {},
+    trendData: Array.isArray(previousSnapshot.trendData)
+      ? previousSnapshot.trendData
+      : [],
+    contextData:
+      previousSnapshot.contextData && typeof previousSnapshot.contextData === "object"
+        ? previousSnapshot.contextData
+        : {},
+  };
+}
 
 function resolveTimeoutMs() {
   const configured = Number(import.meta.env.VITE_ANALYTICS_REQUEST_TIMEOUT_MS);
@@ -36,14 +61,16 @@ async function parseResponse(response, endpointName) {
   return response.json();
 }
 
-export async function fetchAnalyticsSnapshot() {
+export async function fetchAnalyticsSnapshot(previousSnapshot = EMPTY_ANALYTICS_SNAPSHOT) {
+  const previous = resolvePreviousSnapshot(previousSnapshot);
+
   const endpointRequests = [
     {
       key: "kpis",
       label: "KPI data",
       panelName: "KPI cards",
       request: () => fetchWithTimeout(`${API_BASE_URL}/analytics/kpis/`, "KPI data"),
-      fallback: {},
+      fallback: previous.kpis,
       normalize: (value) => (value && typeof value === "object" ? value : {}),
     },
     {
@@ -51,7 +78,7 @@ export async function fetchAnalyticsSnapshot() {
       label: "trend data",
       panelName: "trend chart",
       request: () => fetchWithTimeout(`${API_BASE_URL}/analytics/trends/`, "trend data"),
-      fallback: [],
+      fallback: previous.trendData,
       normalize: (value) => (Array.isArray(value) ? value : []),
     },
     {
@@ -59,7 +86,7 @@ export async function fetchAnalyticsSnapshot() {
       label: "Indian context data",
       panelName: "context charts",
       request: () => fetchWithTimeout(`${API_BASE_URL}/analytics/indian-context/`, "Indian context data"),
-      fallback: {},
+      fallback: previous.contextData,
       normalize: (value) => (value && typeof value === "object" ? value : {}),
     },
   ];
