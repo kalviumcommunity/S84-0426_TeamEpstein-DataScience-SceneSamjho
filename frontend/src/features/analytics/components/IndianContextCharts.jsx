@@ -13,6 +13,30 @@ import {
 } from "recharts";
 
 const CHART_COLORS = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626"];
+const SEVERITY_ORDER = ["Fatal", "Major", "Minor"];
+
+function normalizeSeverityLabel(value) {
+  const asString = String(value || "").trim();
+
+  if (!asString) {
+    return "Unknown";
+  }
+
+  return asString.charAt(0).toUpperCase() + asString.slice(1).toLowerCase();
+}
+
+function severitySortValue(severityLabel) {
+  const index = SEVERITY_ORDER.indexOf(severityLabel);
+  return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+}
+
+function formatCount(value) {
+  if (typeof value !== "number") {
+    return "0";
+  }
+
+  return value.toLocaleString("en-IN");
+}
 
 function getHazardBreakdown(data) {
   return [
@@ -25,10 +49,13 @@ function getHazardBreakdown(data) {
 function getWrongWaySeverityData(data) {
   const source = data.severity_distribution_wrong_way || {};
 
-  return Object.keys(source).map((severity) => ({
-    severity,
-    count: source[severity],
-  }));
+  return Object.keys(source)
+    .map((severity) => ({
+      severity: normalizeSeverityLabel(severity),
+      count: Number(source[severity]) || 0,
+    }))
+    .filter((entry) => entry.count > 0)
+    .sort((a, b) => severitySortValue(a.severity) - severitySortValue(b.severity));
 }
 
 export function IndianContextCharts({
@@ -89,7 +116,7 @@ export function IndianContextCharts({
                   <Cell key={`${entry.name}-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [`${value} incidents`, "Count"]} />
+              <Tooltip formatter={(value) => [`${formatCount(value)} incidents`, "Count"]} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
@@ -106,7 +133,7 @@ export function IndianContextCharts({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="severity" tickLine={false} axisLine={false} />
               <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-              <Tooltip formatter={(value) => [`${value} incidents`, "Count"]} />
+              <Tooltip formatter={(value) => [`${formatCount(value)} incidents`, "Count"]} />
               <Legend />
               <Bar dataKey="count" name="Wrong-way Cases" fill="#7c3aed" radius={[8, 8, 0, 0]} />
             </BarChart>

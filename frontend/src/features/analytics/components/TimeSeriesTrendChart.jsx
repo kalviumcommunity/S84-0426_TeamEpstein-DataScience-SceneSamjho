@@ -54,6 +54,13 @@ const TIME_BUCKET_ORDER = [
   "Night (8PM-6AM)",
 ];
 
+const TIME_BUCKET_SHORT_LABELS = {
+  "Morning (6AM-12PM)": "Morning",
+  "Afternoon (12PM-4PM)": "Afternoon",
+  "Evening (4PM-8PM)": "Evening",
+  "Night (8PM-6AM)": "Night",
+};
+
 const TIME_BUCKET_INDEX = TIME_BUCKET_ORDER.reduce((acc, bucket, index) => {
   acc[bucket] = index;
   return acc;
@@ -84,6 +91,18 @@ function normalizeTrendData(data, useFallback = false) {
   });
 
   return normalized;
+}
+
+function formatTimeBucketLabel(timeBucket) {
+  return TIME_BUCKET_SHORT_LABELS[timeBucket] || timeBucket;
+}
+
+function formatTooltipAccidentCount(value) {
+  if (typeof value !== "number") {
+    return ["N/A", "Count"];
+  }
+
+  return [`${value.toLocaleString("en-IN")} accidents`, "Count"];
 }
 
 export function TimeSeriesTrendChart({
@@ -139,10 +158,16 @@ export function TimeSeriesTrendChart({
           margin={{ top: 8, right: 16, left: 0, bottom: 8 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="timeBucket" tickLine={false} axisLine={false} />
+          <XAxis
+            dataKey="timeBucket"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={formatTimeBucketLabel}
+            interval={0}
+          />
           <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
           <Tooltip
-            formatter={(value, name) => [`${value} accidents`, name]}
+            formatter={(value) => formatTooltipAccidentCount(value)}
             labelFormatter={(label) => `${label}`}
           />
           <Legend />
